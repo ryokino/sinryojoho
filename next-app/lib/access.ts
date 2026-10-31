@@ -9,6 +9,7 @@ export function decideAccess(input: {
 }): AccessDecision {
   if (input.source === "local") return "allow";
   if (
+    input.pathname === "/login" ||
     input.pathname.startsWith("/api/auth/") ||
     input.pathname.startsWith("/api/toolbox-sso/")
   ) {

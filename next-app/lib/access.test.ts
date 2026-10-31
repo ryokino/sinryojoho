@@ -30,6 +30,15 @@ describe("decideAccess", () => {
     }
   });
 
+  it("allows the login error page without session (no redirect loop)", () => {
+    expect(
+      decideAccess({ pathname: "/login", signedIn: false, source: "toolbox" }),
+    ).toBe("allow");
+    expect(
+      decideAccess({ pathname: "/login/x", signedIn: false, source: "toolbox" }),
+    ).toBe("login");
+  });
+
   it("allows toolbox app paths when signed in", () => {
     expect(
       decideAccess({ pathname: "/", signedIn: true, source: "toolbox" }),
@@ -37,9 +46,3 @@ describe("decideAccess", () => {
   });
 });
 
-describe("permissionsSource via decideAccess defaults", () => {
-  it("treats unknown PERMISSIONS_SOURCE as local in provider tests", () => {
-    // covered in auth-providers.test.ts; access uses explicit source only.
-    expect(true).toBe(true);
-  });
-});
