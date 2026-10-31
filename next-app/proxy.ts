@@ -22,6 +22,7 @@ export default auth((request) => {
     );
     return NextResponse.redirect(
       new URL(`/api/toolbox-sso/start?returnTo=${returnTo}`, request.url),
+      302,
     );
   }
 
