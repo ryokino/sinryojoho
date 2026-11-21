@@ -30,6 +30,15 @@ function credentialValue(credentials: unknown, key: string): unknown {
   return Reflect.get(credentials, key);
 }
 
+// message は固定。Auth.js の logger.error がそのまま出すので、メール・code・state・トークンを入れない。
+export class ToolboxSsoUnavailableError extends Error {
+  constructor() {
+    super("toolbox sso unavailable");
+    this.name = "ToolboxSsoUnavailableError";
+  }
+}
+
+// unavailable は投げる（Auth.js は CredentialsSignin 以外を CallbackRouteError にし、callback が toolbox_unavailable に送る）。
 export async function authorizeToolboxSso(
   credentials: unknown,
   request: Request,
@@ -41,6 +50,7 @@ export async function authorizeToolboxSso(
   const cookieState = parseCookieHeader(request.headers.get("cookie"), SSO_STATE_COOKIE);
   if (cookieState !== state) return null;
   const exchanged = await exchangeCode(code, state, deps);
+  if (exchanged.kind === "unavailable") throw new ToolboxSsoUnavailableError();
   if (exchanged.kind !== "ok") return null;
   return {
     id: exchanged.session.email,
